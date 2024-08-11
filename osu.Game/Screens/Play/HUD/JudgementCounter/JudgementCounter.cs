@@ -46,6 +46,7 @@ namespace osu.Game.Screens.Play.HUD.JudgementCounter
                         Alpha = 0,
                         Font = OsuFont.Numeric.With(size: 8),
                         Text = Result.DisplayName,
+
                     }
                 }
             };

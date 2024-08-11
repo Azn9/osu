@@ -53,7 +53,7 @@ namespace osu.Game.Screens.Play.HUD
         {
             if (gameplayState != null)
             {
-                performanceCalculator = gameplayState.Ruleset.CreatePerformanceCalculator();
+                performanceCalculator = gameplayState.Ruleset.CreatePerformanceCalculator(IsIncrementing);
                 clonedMods = gameplayState.Mods.Select(m => m.DeepClone()).ToArray();
 
                 scoreInfo = new ScoreInfo(gameplayState.Score.ScoreInfo.BeatmapInfo, gameplayState.Score.ScoreInfo.Ruleset) { Mods = clonedMods };
@@ -86,7 +86,11 @@ namespace osu.Game.Screens.Play.HUD
                 onJudgementChanged(gameplayState.LastJudgementResult.Value);
         }
 
+        private int lastPpValue = 0;
+
         public virtual bool IsValid { get; set; }
+
+        protected virtual bool IsIncrementing => false;
 
         private void onJudgementChanged(JudgementResult judgement)
         {
@@ -101,7 +105,23 @@ namespace osu.Game.Screens.Play.HUD
             }
 
             scoreProcessor.PopulateScore(scoreInfo);
-            Current.Value = (int)Math.Round(performanceCalculator?.Calculate(scoreInfo, attrib).Total ?? 0, MidpointRounding.AwayFromZero);
+
+            if (IsIncrementing)
+            {
+                int newValue = (int)Math.Round(performanceCalculator?.Calculate(scoreInfo, attrib).Total ?? 0, MidpointRounding.AwayFromZero);
+                int diff = newValue - lastPpValue;
+                lastPpValue = newValue;
+
+                if (diff > 0)
+                {
+                    Current.Value += diff;
+                }
+            }
+            else
+            {
+                Current.Value = (int)Math.Round(performanceCalculator?.Calculate(scoreInfo, attrib).Total ?? 0, MidpointRounding.AwayFromZero);
+            }
+
             IsValid = true;
         }
 

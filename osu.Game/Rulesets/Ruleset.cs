@@ -265,8 +265,9 @@ namespace osu.Game.Rulesets
         /// <summary>
         /// Optionally creates a <see cref="PerformanceCalculator"/> to generate performance data from the provided score.
         /// </summary>
+        /// <param name="isIncrementing"></param>
         /// <returns>A performance calculator instance for the provided score.</returns>
-        public virtual PerformanceCalculator? CreatePerformanceCalculator() => null;
+        public virtual PerformanceCalculator? CreatePerformanceCalculator(bool isIncrementing = false) => null;
 
         public virtual HitObjectComposer? CreateHitObjectComposer() => null;
 

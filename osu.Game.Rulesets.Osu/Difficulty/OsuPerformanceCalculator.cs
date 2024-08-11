@@ -23,10 +23,12 @@ namespace osu.Game.Rulesets.Osu.Difficulty
         private int countMiss;
 
         private double effectiveMissCount;
+        private readonly bool isIncrementing;
 
-        public OsuPerformanceCalculator()
+        public OsuPerformanceCalculator(bool isIncrementing = false)
             : base(new OsuRuleset())
         {
+            this.isIncrementing = isIncrementing;
         }
 
         protected override PerformanceAttributes CreatePerformanceAttributes(ScoreInfo score, DifficultyAttributes attributes)
@@ -44,7 +46,7 @@ namespace osu.Game.Rulesets.Osu.Difficulty
             double multiplier = PERFORMANCE_BASE_MULTIPLIER;
 
             if (score.Mods.Any(m => m is OsuModNoFail))
-                multiplier *= Math.Max(0.90, 1.0 - 0.02 * effectiveMissCount);
+                multiplier *= isIncrementing ? 1.0 : Math.Max(0.90, 1.0 - 0.02 * effectiveMissCount);
 
             if (score.Mods.Any(m => m is OsuModSpunOut) && totalHits > 0)
                 multiplier *= 1.0 - Math.Pow((double)osuAttributes.SpinnerCount / totalHits, 0.85);
@@ -93,7 +95,7 @@ namespace osu.Game.Rulesets.Osu.Difficulty
             aimValue *= lengthBonus;
 
             // Penalize misses by assessing # of misses relative to the total # of objects. Default a 3% reduction for any # of misses.
-            if (effectiveMissCount > 0)
+            if (!isIncrementing && effectiveMissCount > 0)
                 aimValue *= 0.97 * Math.Pow(1 - Math.Pow(effectiveMissCount / totalHits, 0.775), effectiveMissCount);
 
             aimValue *= getComboScalingFactor(attributes);
@@ -146,7 +148,7 @@ namespace osu.Game.Rulesets.Osu.Difficulty
             speedValue *= lengthBonus;
 
             // Penalize misses by assessing # of misses relative to the total # of objects. Default a 3% reduction for any # of misses.
-            if (effectiveMissCount > 0)
+            if (!isIncrementing && effectiveMissCount > 0)
                 speedValue *= 0.97 * Math.Pow(1 - Math.Pow(effectiveMissCount / totalHits, 0.775), Math.Pow(effectiveMissCount, .875));
 
             speedValue *= getComboScalingFactor(attributes);
@@ -229,7 +231,7 @@ namespace osu.Game.Rulesets.Osu.Difficulty
             double flashlightValue = Math.Pow(attributes.FlashlightDifficulty, 2.0) * 25.0;
 
             // Penalize misses by assessing # of misses relative to the total # of objects. Default a 3% reduction for any # of misses.
-            if (effectiveMissCount > 0)
+            if (!isIncrementing && effectiveMissCount > 0)
                 flashlightValue *= 0.97 * Math.Pow(1 - Math.Pow(effectiveMissCount / totalHits, 0.775), Math.Pow(effectiveMissCount, .875));
 
             flashlightValue *= getComboScalingFactor(attributes);
@@ -265,6 +267,6 @@ namespace osu.Game.Rulesets.Osu.Difficulty
         }
 
         private double getComboScalingFactor(OsuDifficultyAttributes attributes) => attributes.MaxCombo <= 0 ? 1.0 : Math.Min(Math.Pow(scoreMaxCombo, 0.8) / Math.Pow(attributes.MaxCombo, 0.8), 1.0);
-        private int totalHits => countGreat + countOk + countMeh + countMiss;
+        private int totalHits => countGreat + countOk + countMeh + countMiss * (isIncrementing ? 0 : 1);
     }
 }

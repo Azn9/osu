@@ -122,6 +122,7 @@ namespace osu.Game.Skinning
                                 var score = container.OfType<ArgonScoreCounter>().FirstOrDefault();
                                 var accuracy = container.OfType<ArgonAccuracyCounter>().FirstOrDefault();
                                 var performancePoints = container.OfType<ArgonPerformancePointsCounter>().FirstOrDefault();
+                                var performancePointsIncrease = container.OfType<ArgonPerformancePointsIncreaseCounter>().FirstOrDefault();
                                 var combo = container.OfType<ArgonComboCounter>().FirstOrDefault();
                                 var songProgress = container.OfType<ArgonSongProgress>().FirstOrDefault();
                                 var keyCounter = container.OfType<ArgonKeyCounterDisplay>().FirstOrDefault();
@@ -168,6 +169,13 @@ namespace osu.Game.Skinning
                                         performancePoints.Position = new Vector2(accuracy.X, accuracy.Y + accuracy.DrawHeight + 10);
                                         performancePoints.Anchor = Anchor.TopRight;
                                         performancePoints.Origin = Anchor.TopRight;
+                                    }
+
+                                    if (performancePointsIncrease != null && accuracy != null)
+                                    {
+                                        performancePointsIncrease.Position = new Vector2(accuracy.X, accuracy.Y + accuracy.DrawHeight + 20);
+                                        performancePointsIncrease.Anchor = Anchor.TopRight;
+                                        performancePointsIncrease.Origin = Anchor.TopRight;
                                     }
 
                                     var hitError = container.OfType<HitErrorMeter>().FirstOrDefault();
@@ -236,6 +244,10 @@ namespace osu.Game.Skinning
                                     },
                                     new ArgonAccuracyCounter(),
                                     new ArgonPerformancePointsCounter
+                                    {
+                                        Scale = new Vector2(0.8f),
+                                    },
+                                    new ArgonPerformancePointsIncreaseCounter
                                     {
                                         Scale = new Vector2(0.8f),
                                     },
