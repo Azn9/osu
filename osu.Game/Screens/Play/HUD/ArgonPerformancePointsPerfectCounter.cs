@@ -11,7 +11,7 @@ using osu.Game.Skinning;
 
 namespace osu.Game.Screens.Play.HUD
 {
-    public partial class ArgonPerformancePointsIncreaseCounter : PerformancePointsCounter, ISerialisableDrawable
+    public partial class ArgonPerformancePointsPerfectCounter : PerformancePointsCounter, ISerialisableDrawable
     {
         private ArgonCounterTextComponent text = null!;
 
@@ -19,7 +19,7 @@ namespace osu.Game.Screens.Play.HUD
 
         private const float alpha_when_invalid = 0.3f;
 
-        protected override bool IsIncrementing => true;
+        protected override bool IsPerfect => true;
 
         [SettingSource("Wireframe opacity", "Controls the opacity of the wireframes behind the digits.")]
         public BindableFloat WireframeOpacity { get; } = new BindableFloat(0.25f)
@@ -72,7 +72,7 @@ namespace osu.Game.Screens.Play.HUD
             return digitsRequired;
         }
 
-        protected override IHasText CreateText() => text = new ArgonCounterTextComponent(Anchor.TopRight, @"PP increasing")
+        protected override IHasText CreateText() => text = new ArgonCounterTextComponent(Anchor.TopRight, @"PP if Perfect")
         {
             WireframeOpacity = { BindTarget = WireframeOpacity },
             ShowLabel = { BindTarget = ShowLabel },

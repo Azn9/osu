@@ -86,11 +86,13 @@ namespace osu.Game.Screens.Play.HUD
                 onJudgementChanged(gameplayState.LastJudgementResult.Value);
         }
 
-        private int lastPpValue = 0;
+        private double lastPpValue = 0;
+        private double currentPpValue = 0;
 
         public virtual bool IsValid { get; set; }
 
         protected virtual bool IsIncrementing => false;
+        protected virtual bool IsPerfect => false;
 
         private void onJudgementChanged(JudgementResult judgement)
         {
@@ -108,14 +110,43 @@ namespace osu.Game.Screens.Play.HUD
 
             if (IsIncrementing)
             {
-                int newValue = (int)Math.Round(performanceCalculator?.Calculate(scoreInfo, attrib).Total ?? 0, MidpointRounding.AwayFromZero);
-                int diff = newValue - lastPpValue;
-                lastPpValue = newValue;
+                double newDoubleValue = performanceCalculator?.Calculate(scoreInfo, attrib).Total ?? 0;
+                double diff = newDoubleValue - lastPpValue;
+                lastPpValue = newDoubleValue;
 
                 if (diff > 0)
                 {
-                    Current.Value += diff;
+                    currentPpValue += diff;
+                    Current.Value = (int)Math.Round(currentPpValue, MidpointRounding.AwayFromZero);
                 }
+            }
+            else if (IsPerfect)
+            {
+                scoreInfo.Accuracy = 1.0;
+                int great = scoreInfo.Statistics.GetValueOrDefault(HitResult.Great, 0);
+                int ok = scoreInfo.Statistics.GetValueOrDefault(HitResult.Ok, 0);
+                int meh = scoreInfo.Statistics.GetValueOrDefault(HitResult.Meh, 0);
+                int miss = scoreInfo.Statistics.GetValueOrDefault(HitResult.Miss, 0);
+                int lth = scoreInfo.Statistics.GetValueOrDefault(HitResult.LargeTickHit, 0);
+                int ltm = scoreInfo.Statistics.GetValueOrDefault(HitResult.LargeTickMiss, 0);
+                int sth = scoreInfo.Statistics.GetValueOrDefault(HitResult.SmallTickHit, 0);
+                int stm = scoreInfo.Statistics.GetValueOrDefault(HitResult.SmallTickMiss, 0);
+
+                int totalHits = great + ok + meh + miss + lth + ltm + sth + stm;
+
+                scoreInfo.Statistics[HitResult.Great] = totalHits;
+                scoreInfo.Statistics[HitResult.Ok] = 0;
+                scoreInfo.Statistics[HitResult.Meh] = 0;
+                scoreInfo.Statistics[HitResult.Miss] = 0;
+                scoreInfo.Statistics[HitResult.LargeTickHit] = 0;
+                scoreInfo.Statistics[HitResult.LargeTickMiss] = 0;
+                scoreInfo.Statistics[HitResult.SmallTickHit] = 0;
+                scoreInfo.Statistics[HitResult.SmallTickMiss] = 0;
+
+                scoreInfo.Combo = totalHits;
+                scoreInfo.MaxCombo = totalHits;
+
+                Current.Value = (int)Math.Round(performanceCalculator?.Calculate(scoreInfo, attrib).Total ?? 0, MidpointRounding.AwayFromZero);
             }
             else
             {
