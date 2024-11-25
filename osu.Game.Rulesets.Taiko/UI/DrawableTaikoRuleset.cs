@@ -18,6 +18,7 @@ using osu.Game.Replays;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Rulesets.Objects;
 using osu.Game.Rulesets.Objects.Drawables;
+using osu.Game.Rulesets.Taiko.Mods;
 using osu.Game.Rulesets.Taiko.Objects;
 using osu.Game.Rulesets.Taiko.Replays;
 using osu.Game.Rulesets.Timing;
@@ -114,7 +115,23 @@ namespace osu.Game.Rulesets.Taiko.UI
 
         protected override PassThroughInputManager CreateInputManager() => new TaikoInputManager(Ruleset.RulesetInfo);
 
-        protected override Playfield CreatePlayfield() => new TaikoPlayfield();
+        protected override Playfield CreatePlayfield()
+        {
+            // Only one IPlayfieldTypeMod can be enabled at a time
+            var playfieldType = Mods.OfType<IPlayfieldTypeMod>().FirstOrDefault()?.PlayfieldType ?? Taiko.PlayfieldType.Single;
+
+            switch (playfieldType)
+            {
+                case PlayfieldType.Single:
+                    return new TaikoPlayfield();
+
+                case PlayfieldType.Dual:
+                    return new DualTaikoPlayfield();
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
 
         public override DrawableHitObject<TaikoHitObject> CreateDrawableRepresentation(TaikoHitObject h) => null;
 

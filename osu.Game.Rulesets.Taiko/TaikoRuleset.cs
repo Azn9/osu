@@ -152,6 +152,7 @@ namespace osu.Game.Rulesets.Taiko
                         new TaikoModSwap(),
                         new TaikoModSingleTap(),
                         new TaikoModConstantSpeed(),
+                        new TaikoModeDualLanes()
                     };
 
                 case ModType.Automation:
@@ -276,5 +277,11 @@ namespace osu.Game.Rulesets.Taiko
 
             return adjustedDifficulty;
         }
+    }
+
+    public enum PlayfieldType
+    {
+        Single = 0,
+        Dual = 1000
     }
 }
