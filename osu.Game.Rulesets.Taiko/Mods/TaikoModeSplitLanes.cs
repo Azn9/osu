@@ -6,14 +6,14 @@ using osu.Game.Rulesets.Mods;
 
 namespace osu.Game.Rulesets.Taiko.Mods
 {
-    public class TaikoModeDualLanes : Mod, IPlayfieldTypeMod
+    public class TaikoModeSplitLanes : Mod, IPlayfieldTypeMod
     {
-        public override string Name => @"Dual Lanes";
-        public override string Acronym => @"DL";
+        public override string Name => @"Slit Lanes";
+        public override string Acronym => @"SL";
         public override LocalisableString Description => @"One lane for dons, one lane for kats";
-        public override double ScoreMultiplier => 0.5;
+        public override double ScoreMultiplier => 1.0;
         public override bool Ranked => false;
         public override ModType Type => ModType.Conversion;
-        public PlayfieldType PlayfieldType => PlayfieldType.Dual;
+        public PlayfieldType PlayfieldType => PlayfieldType.Split;
     }
 }

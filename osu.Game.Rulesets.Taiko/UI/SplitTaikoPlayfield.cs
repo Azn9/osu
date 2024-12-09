@@ -11,7 +11,7 @@ using osuTK;
 
 namespace osu.Game.Rulesets.Taiko.UI
 {
-    public partial class DualTaikoPlayfield : ScrollingPlayfield
+    public partial class SplitTaikoPlayfield : ScrollingPlayfield
     {
         private TaikoPlayfield? donsPlayfield;
         private TaikoPlayfield? katsPlayfield;
@@ -19,10 +19,14 @@ namespace osu.Game.Rulesets.Taiko.UI
         [BackgroundDependencyLoader]
         private void load()
         {
-            donsPlayfield = new TaikoPlayfield();
+            donsPlayfield = new TaikoPlayfield()
+            {
+                Depth = 1,
+            };
             katsPlayfield = new TaikoPlayfield()
             {
-                Position = new Vector2(0, TaikoPlayfield.BASE_HEIGHT)
+                Position = new Vector2(0, TaikoPlayfield.BASE_HEIGHT), // Just below the dons playfield
+                Depth = 1, // To avoid swells being rendered behind the second playfield
             };
 
             AddNested(donsPlayfield);
@@ -41,7 +45,7 @@ namespace osu.Game.Rulesets.Taiko.UI
         {
             switch (h)
             {
-                case BarLine barLine:
+                case BarLine barLine: // Add bar lines to both playfields
                     donsPlayfield?.Add(barLine);
                     katsPlayfield?.Add(barLine);
                     break;
@@ -51,7 +55,7 @@ namespace osu.Game.Rulesets.Taiko.UI
                     {
                         donsPlayfield?.Add(hit);
                     }
-                    else
+                    else // if (hit.Type == HitType.Rim)
                     {
                         katsPlayfield?.Add(hit);
                     }
@@ -59,7 +63,7 @@ namespace osu.Game.Rulesets.Taiko.UI
                     break;
 
                 default:
-                    base.Add(h);
+                    donsPlayfield?.Add(h);
                     break;
             }
         }
@@ -76,11 +80,13 @@ namespace osu.Game.Rulesets.Taiko.UI
                     {
                         return donsPlayfield?.Remove(hit) ?? false;
                     }
-
-                    return katsPlayfield?.Remove(hit) ?? false;
+                    else // if (hit.Type == HitType.Rim)
+                    {
+                        return katsPlayfield?.Remove(hit) ?? false;
+                    }
 
                 default:
-                    return base.Remove(h);
+                    return donsPlayfield?.Remove(h) ?? false;
             }
         }
 
@@ -92,39 +98,34 @@ namespace osu.Game.Rulesets.Taiko.UI
         {
             switch (h)
             {
-                case DrawableBarLine barLine:
+                case DrawableBarLine barLine: // Add bar lines to both playfields
                     donsPlayfield?.Add(barLine);
                     katsPlayfield?.Add(barLine);
                     break;
 
                 case DrawableTaikoHitObject drawableHitObject:
-                    if (drawableHitObject.HitObject is TaikoHitObject taikoHitObject)
+                    if (drawableHitObject.HitObject is Hit hit)
                     {
-                        if (taikoHitObject is Hit hit)
+                        if (hit.Type == HitType.Centre)
                         {
-                            if (hit.Type == HitType.Centre)
-                            {
-                                donsPlayfield?.Add(h);
-                            }
-                            else
-                            {
-                                katsPlayfield?.Add(h);
-                            }
+                            donsPlayfield?.Add(h);
                         }
-                        else
+                        else // if (hit.Type == HitType.Rim)
                         {
-                            base.Add(h);
+                            katsPlayfield?.Add(h);
                         }
+
+                        break;
                     }
-                    else
+                    else // For everything else, add to the dons playfield
                     {
-                        base.Add(h);
+                        donsPlayfield?.Add(h);
                     }
 
                     break;
 
                 default:
-                    base.Add(h);
+                    donsPlayfield?.Add(h);
                     break;
             }
         }
@@ -137,25 +138,23 @@ namespace osu.Game.Rulesets.Taiko.UI
                     return (donsPlayfield?.Remove(h) ?? false) && (katsPlayfield?.Remove(barLine) ?? false);
 
                 case DrawableTaikoHitObject drawableHitObject:
-                    if (drawableHitObject.HitObject is TaikoHitObject taikoHitObject)
+                    if (drawableHitObject.HitObject is not TaikoHitObject taikoHitObject)
+                        return donsPlayfield?.Remove(h) ?? false;
+
+                    if (taikoHitObject is not Hit hit)
+                        return donsPlayfield?.Remove(h) ?? false;
+
+                    if (hit.Type == HitType.Centre)
                     {
-                        if (taikoHitObject is Hit hit)
-                        {
-                            if (hit.Type == HitType.Centre)
-                            {
-                                return donsPlayfield?.Remove(h) ?? false;
-                            }
-
-                            return katsPlayfield?.Remove(h) ?? false;
-                        }
-
-                        return base.Remove(h);
+                        return donsPlayfield?.Remove(h) ?? false;
+                    }
+                    else // if (hit.Type == HitType.Rim)
+                    {
+                        return katsPlayfield?.Remove(h) ?? false;
                     }
 
-                    return base.Remove(h);
-
                 default:
-                    return base.Remove(h);
+                    return donsPlayfield?.Remove(h) ?? false;
             }
         }
 

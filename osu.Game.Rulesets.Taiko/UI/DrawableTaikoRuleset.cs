@@ -125,8 +125,8 @@ namespace osu.Game.Rulesets.Taiko.UI
                 case PlayfieldType.Single:
                     return new TaikoPlayfield();
 
-                case PlayfieldType.Dual:
-                    return new DualTaikoPlayfield();
+                case PlayfieldType.Split:
+                    return new SplitTaikoPlayfield();
 
                 default:
                     throw new ArgumentOutOfRangeException();

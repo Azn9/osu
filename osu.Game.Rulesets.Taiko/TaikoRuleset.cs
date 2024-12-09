@@ -152,7 +152,7 @@ namespace osu.Game.Rulesets.Taiko
                         new TaikoModSwap(),
                         new TaikoModSingleTap(),
                         new TaikoModConstantSpeed(),
-                        new TaikoModeDualLanes()
+                        new TaikoModeSplitLanes()
                     };
 
                 case ModType.Automation:
@@ -282,6 +282,6 @@ namespace osu.Game.Rulesets.Taiko
     public enum PlayfieldType
     {
         Single = 0,
-        Dual = 1000
+        Split = 1000
     }
 }
